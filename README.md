@@ -1,7 +1,7 @@
 # chatgptapi
-Use ChatGPT as an API.
+Use chat.openai.com's free API instead of api.openai.com's pay-per-token version.
 
-This project is still very much in alpha and is only meant as a proof-of-concept to talk to ChatGPT via javascript.
+This project is still very much in alpha and is only meant as a proof-of-concept.
 
 How to use:
 - Install as a Chrome extension.
