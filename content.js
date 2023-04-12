@@ -42,74 +42,79 @@ async function _(e) {
     return i
 }
 
-chrome.runtime.onMessage.addListener(function(e, n, t) {
-    if ((e == null ? void 0 : e.action) === "chatgptapi-message") {
-		chrome.runtime.sendMessage({ action: "chatgptapi-getcookies" }).then(async a => {
-			a = e.cookies;
-			var i = a.find(d => d.name === "__Secure-next-auth.session-token");
-			if (i === void 0) {
-				t({
-					status: 200,
-					statusText: "ok",
-					body: JSON.stringify(s([], 2))
-				});
-				return
-			}
-			let y = i.value;
-			const c = await _(y);
-			if (Number.isInteger(c)) {
-				t({
-					status: 200,
-					statusText: "ok",
-					body: JSON.stringify(s([], c))
-				});
-				return
-			}
-			const h = new Headers;
-			h.append("content-type", "application/json"), h.append("authorization", "Bearer " + c);
-			r = e.message;
+function handleApiResponse(response, statusCode) {
+    return {
+        status: statusCode,
+        statusText: "ok",
+        body: JSON.stringify(response)
+    };
+}
 
-			const b = {
-				action: "next",
-				messages: [{
-					id: crypto.randomUUID(),
-					role: "user",
-					content: {
-						content_type: "text",
-						parts: [r]
-					}
-				}],
-				model: "text-davinci-002-render",
-				parent_message_id: crypto.randomUUID()
-			};
-			var x = JSON.stringify(b);
-			const l = await fetch("https://chat.openai.com/backend-api/conversation", {
-				method: "POST",
-				headers: h,
-				body: x
-			});
-			let p = await l.text(),
-				g = w(p);
-			if (g !== !1) {
-				t({
-					status: 200,
-					statusText: "ok",
-					body: JSON.stringify(s([], g))
-				});
-				return
-			}
-			let f = p.split(`
+async function fetchOpenAIChatResponse(authToken, message) {
+    const headers = new Headers();
+    headers.append("content-type", "application/json");
+    headers.append("authorization", `Bearer ${authToken}`);
 
-`).map(d => d),
-				m = v(f[f.length - 3]),
-				u = k(m);
-			var return_data = f[f.length - 3];
-			return_data = return_data.substring(6);
-			return_data = JSON.parse(return_data);
-			var answer = return_data.message.content.parts[0];
-			console.log(answer);
-			return answer;
-		}).then(t);
-		return true;
-	}
+    const requestBody = {
+        action: "next",
+        messages: [
+            {
+                id: crypto.randomUUID(),
+                role: "user",
+                content: {
+                    content_type: "text",
+                    parts: [message]
+                }
+            }
+        ],
+        model: "text-davinci-002-render",
+        parent_message_id: crypto.randomUUID()
+    };
+
+    const response = await fetch("https://chat.openai.com/backend-api/conversation", {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify(requestBody)
+    });
+
+    return await response.text();
+}
+
+chrome.runtime.onMessage.addListener((event, sender, sendResponse) => {
+    if (event?.action === "chatgptapi-message") {
+        chrome.runtime.sendMessage({ action: "chatgptapi-getcookies" }).then(async cookies => {
+			cookies = event.cookies;
+            const sessionTokenCookie = cookies.find(cookie => cookie.name === "__Secure-next-auth.session-token");
+
+            if (!sessionTokenCookie) {
+                sendResponse(handleApiResponse([], 200));
+                return;
+            }
+
+            const authToken = await _(sessionTokenCookie.value);
+
+            if (Number.isInteger(authToken)) {
+                sendResponse(handleApiResponse([], authToken));
+                return;
+            }
+
+            const chatResponse = await fetchOpenAIChatResponse(authToken, event.message);
+            const parsedResponse = w(chatResponse);
+
+            if (parsedResponse !== false) {
+                sendResponse(handleApiResponse([], parsedResponse));
+                return;
+            }
+
+            const responseLines = chatResponse.split('\n').map(line => line).filter(str => str !== '');
+            const lastLine = responseLines[responseLines.length - 3];
+            const parsedLastLine = JSON.parse(lastLine.substring(6));
+            const answer = parsedLastLine.message.content.parts[0];
+
+            console.log(answer);
+            sendResponse(answer);
+        }).then(sendResponse);
+
+        return true;
+    }
 });
