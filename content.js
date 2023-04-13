@@ -50,39 +50,56 @@ function handleApiResponse(response, statusCode) {
     };
 }
 
-async function fetchOpenAIChatResponse(authToken, message) {
+async function fetchOpenAIChatResponse(authToken, event) {
     const headers = new Headers();
     headers.append("content-type", "application/json");
     headers.append("authorization", `Bearer ${authToken}`);
 
-    const requestBody = {
+    var requestBody = {
         action: "next",
         messages: [
             {
-                id: crypto.randomUUID(),
-                role: "user",
+                id: event.chatId,
+                author: {
+					role: "user"
+				},
                 content: {
                     content_type: "text",
-                    parts: [message]
+                    parts: [event.message]
                 }
             }
         ],
-        model: "text-davinci-002-render",
-        parent_message_id: crypto.randomUUID()
+        model: event.model,
+        parent_message_id: event.parentChatId,
+		timezone_offset_min: -120
     };
+	if (event.conversationId !== undefined) {
+	  requestBody.conversation_id = event.conversationId;
+	}
 
     const response = await fetch("https://chat.openai.com/backend-api/conversation", {
         method: "POST",
         headers: headers,
         body: JSON.stringify(requestBody)
     });
-
-    return await response.text();
+	var _response = await response.text();
+	console.log(_response);
+    return _response;
+    //return await response.text();
 }
 
 chrome.runtime.onMessage.addListener((event, sender, sendResponse) => {
     if (event?.action === "chatgptapi-message") {
         chrome.runtime.sendMessage({ action: "chatgptapi-getcookies" }).then(async cookies => {
+			if (event.chatId === undefined) {
+			  event.chatId = crypto.randomUUID();
+			}
+			if (event.parentChatId === undefined) {
+			  event.parentChatId = crypto.randomUUID();
+			}
+			if (event.model === undefined) {
+			  event.model = 'text-davinci-002-render-sha';
+			}
 			cookies = event.cookies;
             const sessionTokenCookie = cookies.find(cookie => cookie.name === "__Secure-next-auth.session-token");
 
@@ -98,7 +115,7 @@ chrome.runtime.onMessage.addListener((event, sender, sendResponse) => {
                 return;
             }
 
-            const chatResponse = await fetchOpenAIChatResponse(authToken, event.message);
+            const chatResponse = await fetchOpenAIChatResponse(authToken, event);
             const parsedResponse = w(chatResponse);
 
             if (parsedResponse !== false) {
@@ -109,10 +126,13 @@ chrome.runtime.onMessage.addListener((event, sender, sendResponse) => {
             const responseLines = chatResponse.split('\n').map(line => line).filter(str => str !== '');
             const lastLine = responseLines[responseLines.length - 3];
             const parsedLastLine = JSON.parse(lastLine.substring(6));
+            const chatId = parsedLastLine.message.id;
             const answer = parsedLastLine.message.content.parts[0];
+			const conversationId = parsedLastLine.conversation_id;
+			const parentChatId = parsedLastLine.parent_message_id;
 
             console.log(answer);
-            sendResponse(answer);
+            sendResponse({answer: answer, chatId: chatId, parentChatId: parentChatId, conversationId: conversationId});
         }).then(sendResponse);
 
         return true;
