@@ -1,50 +1,3 @@
-window.onload = function () {
-	function injectScript(url) {
-	  const script = document.createElement('script');
-	  script.src = url;
-	  script.async = true;
-	  document.head.appendChild(script);
-	}
-
-	//injectScript('./bin/gcloud/api.js');
-
-	
-	const cloudApiKey = '';
-
-	function initGoogleApiClient() {
-	  return new Promise((resolve, reject) => {
-		gapi.load('client', () => {
-		  gapi.client.setApiKey(apiKey);
-		  gapi.client.load('cloudfunctions', 'v1').then(resolve).catch(reject);
-		});
-	  });
-	}
-	// 
-	const projectId = '';
-	const region = '';
-	const functionName = '';
-
-	async function callPrivateCloudFunction() {
-	  try {
-		await initGoogleApiClient();
-
-		const request = {
-		  name: `projects/${projectId}/locations/${region}/functions/${functionName}`,
-		};
-
-		const response = await gapi.client.cloudfunctions.projects.locations.functions.call(request);
-		const result = response.result;
-
-		console.log('Private Cloud Function response:', result);
-	  } catch (error) {
-		console.error('Error calling private Cloud Function:', error);
-	  }
-	}
-
-	// callPrivateCloudFunction();
-}
-
-
 function w(e, n) {
     return e.includes("checking your browser") ? 1 : e.includes("token_expired") ? 2 : !1
 }
@@ -134,13 +87,26 @@ async function fetchOpenAIChatResponse(authToken, event) {
 	return _response;
 	//return await response.text();
 }
-
+// chatgptapi-mockmessage
 var messageLog = [];
 chrome.runtime.onMessage.addListener((event, sender, sendResponse) => {
+    if (event?.action === "chatgptapi-messagelog") {
+		console.log({"message log": messageLog});
+	}
+    if (event?.action === "chatgptapi-mockmessage") {
+		new Promise(r => setTimeout(r, 0)).then(async cookies => {
+			console.log({'user': event.mockMessage});
+			messageLog.push({'user': event.mockMessage});
+			console.log({'assistant': event.mockResponse});
+			messageLog.push({'assistant': event.mockRespose});
+        }).then(sendResponse);
+        return true;
+	}
+
     if (event?.action === "chatgptapi-message") {
-        //chrome.runtime.sendMessage({ action: "chatgptapi-getcookies" }).then(async cookies => {
+
+		// Throttle requests.
 		new Promise(r => setTimeout(r, 10000)).then(async cookies => {
-			// Throttle requests.
 			await new Promise(r => setTimeout(r, 5000));
 			if (event.chatId === undefined) {
 			  event.chatId = crypto.randomUUID();
@@ -152,6 +118,7 @@ chrome.runtime.onMessage.addListener((event, sender, sendResponse) => {
 			  event.model = 'text-davinci-002-render-sha';
 			}
 			cookies = event.cookies;
+
             const sessionTokenCookie = cookies.find(cookie => cookie.name === "__Secure-next-auth.session-token");
 
             if (!sessionTokenCookie) {
@@ -166,13 +133,10 @@ chrome.runtime.onMessage.addListener((event, sender, sendResponse) => {
                 return;
             }
 
-			//console.log('apievents');
-			//console.log(event);
 			console.log({'user': event.message});
 			messageLog.push({'user': event.message});
+
             const chatResponse = await fetchOpenAIChatResponse(authToken, event);
-			//console.log('chatResponse');
-			//console.log(chatResponse);
             const parsedResponse = w(chatResponse);
 
             if (parsedResponse !== false) {
@@ -181,14 +145,13 @@ chrome.runtime.onMessage.addListener((event, sender, sendResponse) => {
             }
 
             var responseLines_ = chatResponse.split('\n').map(line => line).filter(str => str !== '');
-			// console.log(responseLines_);
 			var responseLines = [];
 			for (responseLine of responseLines_) {
 				if (responseLine.includes('message')){
 					responseLines.push(responseLine);
 				}
 			}
-			// console.log(responseLines);
+
             const lastLine = responseLines[responseLines.length - 1];
             const parsedLastLine = JSON.parse(lastLine.substring(6));
             const chatId = parsedLastLine.message.id;

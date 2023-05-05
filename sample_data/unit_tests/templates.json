@@ -1,0 +1,106 @@
+[
+    {
+        "templateId": "greeting",
+        "templateString": "Hi there, {{name}}! How can I assist you today?",
+        "metadata": {
+            "validators": [
+                "(input) => typeof input === 'string' && input.length <= 20"
+            ],
+            "decorators": [
+                "(output) => output.toUpperCase()"
+            ]
+        }
+    },
+    {
+        "templateId": "template_1",
+        "templateString": "Hello, {{name}}!",
+        "metadata": {
+            "validators": [],
+            "decorators": []
+        }
+    },
+    {
+        "templateId": "help",
+        "templateString": "Here are the available commands: {{commands}}",
+        "metadata": {
+            "commands": [
+                {
+                    "name": "search",
+                    "description": "search for something"
+                },
+                {
+                    "name": "calculate",
+                    "description": "do some math"
+                },
+                {
+                    "name": "schedule",
+                    "description": "schedule an event"
+                }
+            ]
+        }
+    },
+    {
+        "templateId": "search-results",
+        "templateString": "Here are your search results for '{{query}}': {{results}}.",
+        "metadata": {
+            "validators": [
+                "(output) => Array.isArray(output) && output.length > 0"
+            ]
+        }
+    },
+    {
+        "templateId": "confirm",
+        "templateString": "Are you sure you want to {{action}} {{target}}?",
+        "metadata": {
+            "actionOptions": [
+                {
+                    "name": "delete",
+                    "value": "delete"
+                },
+                {
+                    "name": "edit",
+                    "value": "edit"
+                },
+                {
+                    "name": "cancel",
+                    "value": "cancel"
+                }
+            ],
+            "validators": [
+                "(input) => input === true || input === false"
+            ]
+        }
+    },
+    {
+        "templateId": "schedule",
+        "templateString": "What date and time would you like to schedule the event?",
+        "metadata": {
+            "validators": [
+                "(input) => typeof input === 'string' && input.length > 0"
+            ],
+            "decorators": [
+                "(output) => new Date(output)"
+            ]
+        }
+    },
+    {
+        "templateId": "booking",
+        "templateString": "You have booked a {{product}} on {{date}} for {{price}}.",
+        "metadata": {
+            "productOptions": [
+                {
+                    "name": "flight",
+                    "value": "flight"
+                },
+                {
+                    "name": "hotel",
+                    "value": "hotel"
+                },
+                {
+                    "name": "car rental",
+                    "value": "car"
+                }
+            ]
+        }
+    }
+]

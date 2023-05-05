@@ -1,0 +1,360 @@
+{
+	"namespaces": {
+		"formats": {
+			"docblock": [
+				"Reorder functions from easiest to hardest.",
+				"// TODO",
+				"None of the functions in the script depend on each other.",
+				"- extractComments(functionName, codeWithManyFunctions){return arrayTrimmedComments;}"
+			]
+		},
+		"autoscript": {
+			"userinput": [
+				"Description:",
+				"I need this function:",
+				"- extractComments(functionName, codeWithManyFunctions){return arrayTrimmedComments;}",
+				"Notes:",
+				"- Code is of type string.",
+				"- Code will have varying amounts of whitespaces and newlines."
+			],
+			"examples": {
+				"test_extractComments_1": {
+					"input": ["baz", "function baz(){\\n  /* TODO: Implement.*/\\n}"],
+					"output": ["TODO: Implement."]
+				},
+				"test_extractComments_2": {
+					"input": ["foo", "function foo(b, c){\\n  var a = 0;\\n  // Comment.\\n  return a + b + c;\\n}"],
+					"output": ["Comment."]
+				},
+				"test_extractComments_3": {
+					"input": ["baz", "function baz(){\\n  // Comment 1.\\n  var a = 0;\\n  // Comment 2.\\n  return a;\\n}"],
+					"output": ["Comment 1.", "Comment 2."]
+				},
+				"test_extractComments_4": {
+					"input": ["foo", "function baz(){\\n  // TODO: Implement baz.\\n}\\nfunction foo(){\\n  // TODO: Implement foo.\\n}"],
+					"output": ["TODO: Implement foo."]
+				}
+			},
+			"examples_extractFunction": {
+				"test_extractFunction_1": {
+					"input": ["baz", "function baz(){return 0;}"],
+					"output": "function baz(){return 0;}"
+				},
+				"test_extractFunction_2": {
+					"input": ["baz", "async function baz(){return 0;}"],
+					"output": "async function baz(){return 0;}"
+				},
+				"test_extractFunction_3": {
+					"input": ["bar", "function baz(foo){foo();}\\nfunction foo(bar, baz){return bar + baz;}"],
+					"output": ""
+				},
+				"test_extractFunction_4": {
+					"input": ["baz", "\\n  function baz(){return 0;}  //comment"],
+					"output": "function baz(){return 0;}"
+				}
+			},
+			"examples_extractDocblock": {
+				"test_extractDocblock_1": {
+					"input": ["baz", "/**\\n * Short description.\\n */\\nfunction baz(){return 0;}"],
+					"output": "/**\\n *Short description.\\n */"
+				},
+				"test_extractDocblock_2": {
+					"input": ["foo", "/**\\n * File Docblock.\\n * @author Me\\n */\\n\\n/**\\n * Function Docblock.\\n * @param myParam\\n */\\nfunction foo(myParam){}"],
+					"output": "/**\\n * Function Docblock.\\n * @param myParam\\n */"
+				},
+				"test_extractDocblock_3": {
+					"input": ["bar", "/**\\n * Function one.\\n *\\n */\\nfunction foo(){}\\n/**\\n * Function two.\\n *\\n */\\nfunction bar(){}"],
+					"output": "/**\\n * Function two.\\n *\\n */"
+				},
+				"test_extractDocblock_4": {
+					"input": ["baz", "/**\\n * Function Docblock.\\n */\\nfunction foo(){}"],
+					"output": ""
+				}
+			},
+			"examples2": [
+				{
+					"input": "('foo', ' async  function foo (bar, baz) { return bar +   baz; }  ')",
+					"output": "async  function foo (bar, baz) { return bar +   baz; }"
+				},
+				{
+					"input": "('foo', '\\n function foo(bar, baz){ return bar +   baz; }  ')",
+					"output": "function foo(bar, baz){ return bar +   baz; }"
+				}
+			],
+			"userinput2": [
+				"- replaceFunction(oldFunctionName, newFunctionCode, codeWithManyFunctions){return newCodeWithManyFunctions;}",
+				"- renameFunction(oldFunction, newFunctionName, codeWithManyFunctions){return newCodeWithManyFunctions}",
+				"Requirements:",
+				"- replaceClass(code, newCode)",
+				"- replaceFunction(code, newCode)",
+				"- replaceMethod(code, Newcode)",
+				"- replaceConstructor(code, newCode)",
+				"- renameFunction(old, new, code)",
+				"- renameClass(old, new, code)",
+				"- renameMethod(old, new, code)",
+				"- The replacements will be happening in a string.",
+				"- All parameters are of type string",
+				"- Output for all functions is of type string.",
+				"Take extra care to test for various formattings and line indents."
+			],
+			"first": {
+				"prompts": [
+					[
+					    "{PLACEHOLDER}",
+						"Requirements:",
+						"- Write this in javascript.",
+						"- Do not create helper functions.",
+						"- Do not implement the function. It should be a stub.",
+						"- Add docblock for parameter names and data types, and return value data type.",
+						"- Keep descriptions very short.",
+						"- Don't write any text before or after the code block."
+					]
+				],
+				"validation2": [
+					"Does the function have a clear purpose?",
+					"Is docblock missing any of the following: parameters; return values; datatypes?",
+					"No nested functions.",
+					"No external dependencies."
+				],
+				"retries": 2,
+				"fail": "error"
+			},
+			"stub": {
+				"prompts": [
+					[
+					  "{PLACEHOLDER}",
+					  "Write your response in a code block.",
+					  "Don't write any text before or after the code block. Don't provide any notes or commentary."
+					]
+				],
+				"validation2": [
+					"Docblock specifies parameter names and data types, if those exist.",
+					"Docblock specifies return value data types, if those exist.",
+					"No nested functions.",
+					"No external dependencies."
+				],
+				"retries": 2,
+				"fail": "error"
+			},
+			"function": {
+				"prompts": [
+					[
+					  "{PLACEHOLDER}",
+					  "- Do not write any comments inside the function.",
+					  "- Write your response in a code block.",
+					  "- Don't write any text before or after the code block. Don't provide any notes or commentary."
+					]
+				],
+				"validation": [],
+				"retries": 2,
+				"fail": "error"
+			},
+			"test_scenarios": {
+				"prompts": [
+					[
+					    "{PLACEHOLDER}",
+						"Convert these examples into JSON.",
+						"Name format: \"test_extractComments_1\".",
+						"Do not alter the examples.",
+						"Write your answer in a code block."
+					]
+				],
+				"validation": [],
+				"retries": 2,
+				"fail": "log"
+			},
+			"test_scenarios2": {
+				"prompts": [
+					[
+					    "{PLACEHOLDER}",
+						"Give me 2 more test scenarios.",
+						"Don't add more details than needed; Keep the test as small as needed to test the scenario.",
+						"Write your answer in JSON, in a code block.",
+						"Name format: \"test_{functionName}_{test number}\"."
+					],
+					[
+						"are you sure those are correct? Write AFFIRMATIVE or NEGATIVE."
+					]
+				],
+				"validation": [],
+				"retries": 2,
+				"fail": "log"
+			},
+			"test_scenarios_followup": {
+				"prompts": [
+					[
+						"Add 2 more tests and show them to me in JSON, in a code block."
+					],
+					[
+						"are you sure these new examples are correct? Write AFFIRMATIVE or NEGATIVE."
+					]
+				],
+				"validation": [],
+				"retries": 2,
+				"fail": "log"
+			},
+			"test": {
+				"prompts": [
+					[
+					  "ROLE: Expert web developer",
+					  "LANGUAGE: Javascript for web browsers",
+					  "TASKS:",
+					  "- Implement test functions to test \"extractComments(string1, string2)\" based on the provided \"TEST SCENARIOS\"",
+					  "- Do not write \"extractComments\". Assume it is available. You only write tests.",
+					  "- Each scenario is 1 test",
+					  "- Keys of scenarios are function names: test_extractComments_n()",
+					  "- Error message format: {\"parameters\": [\"parameter1\"], \"expected\": [\"expected1\"], \"actual\": [\"actual1\"]}",
+					  "- No console.error(). Tests throw new Error(JSON.stringify(testResults)).",
+					  "- No comments, no docblocks.",
+					  "- Test functions have no parameters.",
+					  "- No \"expect()\", no \"jest\".",
+					  "- Do not add code to run tests. Write only test functions.",
+					  "- Reply to this message with only the code block that contains all the tests.",
+					  "TEST SCENARIOS:"
+					]
+				],
+				"validation": [
+					"- Same amount of test functions as test scenarios.",
+					"- Test function names are in the format \"test_{functionName}_{test number}\".",
+					"- Test functions have all been implemented.",
+					"- Failed tests throw an error.",
+					"- Tests don't use expect().",
+					"- Tests don't use jest.",
+					"- Tests don't use describe().",
+					"- Does not include code to run tests.",
+					"- Does not contain the definition of the function being tested.",
+					"- No nested functions.",
+					"- No external dependencies.",
+					"- Errors are thrown using the Error class.",
+					"- Does not use console.error()."
+				],
+				"retries": 2,
+				"fail": "log"
+			},
+			"selfheal": {
+				"prompts": [
+					[
+					  "{PLACEHOLDER}",
+					  "TASKS:",
+					  "- Inspect extractComments for errors and attempt to fix them."
+					]
+				],
+				"validation2": [
+					"- Answer does not contain the code of the test function.",
+					"- Answer does not modify the function declaration."
+				],
+				"retries": 2,
+				"fail": "error"
+			},
+
+
+
+
+
+			"confirm": {
+				"prompts": [
+					[
+						"Here is an implementation of one of the functions.",
+						"If it uses any of the other functions, I want you to do the following:",
+						"- If it uses them correctly, write PASS.",
+						"- If it uses them incorrectly, write FAIL.",
+						"- If it doesn't use any of the other functions, write N/A.",
+						"In your response, don't write anything else. Just PASS, FAIL, or N/A."
+					]
+				]
+			},
+			"arbiter": {
+				"prompts": [
+					[
+						"Given the following error message:",
+						"[..]",
+						"Can you tell me if the problem is:",
+						"- The function being tested? (Answer FUNCTION)",
+						"- The test function? (Answer TEST)",
+						"- Neither? (Answer NEITHER)",
+						"- Unsure? (Answer UNSURE)",
+						"Here is the code:",
+						"[..]"
+					]
+				]
+			},
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			"main": {
+				"prompt": [
+					"I want you to split this up into smaller functions.",
+					"The main function will be called 'main'.",
+					"Add as many helper functions as needed.",
+					"Do not implement any of the functions.",
+					"Add a docblock to each function, and make the docblock as detailed as you possibly can\n the docblock should contain all the information necessary for a developer to implement and test the function independently.",
+					"The docblock should describe every parameter and return value, even if the function returns nothing.",
+					"Move the comments of each function into their docblocks.",
+					"Update the docblocks so it conveys the same information with less words.",
+					"Sort the functions so that the ones with the lowest number of dependencies on other functions are at the top."
+				],
+				"validation": [
+				]
+			},
+			"passfail": [
+				"Validate according the following criteria by writing either 'PASS' or 'FAIL' next to each list item, and provide a very short explanation.",
+				"- ${flags.join('\n- ')}",
+				"Write your response in a list, and don't write any text before or after the list.'",
+				"Implement an async function for '${fn}' and name it 'test_${fn}'.', 'It should test whether '${fn}' is working correctly.', 'If the test fails, 'test_${fn}' should throw an error.', 'Do not use 'expect()' or 'jest'.', 'Update the docblock so it conveys the same information with less words'",
+				"new CodeblockFormat('Assume all functions are available.')"
+			],
+			"userinput2": [
+				"A blue button gets shown in the top right corner of the page. When I click on it, it should get the current Tesla stock price, and show it to me in a popup.')"
+			],
+			"tests": [
+				"Failed tests throw an error.",
+				"Tests don't use expect().",
+				"Tests don't use jest.",
+				"Here is the javascript:"
+			],
+			"stub2": [
+				"Docblock has clear instructions to implement the function.",
+				"Docblock specifies parameter names and data types, if those exist.",
+				"Docblock specifies return value data types, if those exist.",
+				"Docblock contains pseudocode."
+			],
+			"Instructions for testing and implementation": [
+				"Function has been implemented.",
+				"Code does not contain a line where the test gets executed."
+			],
+			"orchestrator": [
+				"Does every function have a clear purpose?",
+				"Does every docblock adequately describe the function, including its parameters return values of it has any?",
+				"Are the functions sorted from least dependencies to most?",
+				"No nested functions.",
+				"No external dependencies."
+			],
+			"mock": [
+				"Write a mock implementation for '${fn}' and add a TODO message."
+			],
+			"soft reduce": [
+				"Update the docblock so it conveys the same information with less words"
+			],
+			"reflect": [
+				"The script failed with the following error: ",
+				"Show me an improvement or alternative."
+			],
+			"Instructions for creating mock implementation and error handling": [
+			"Implement function '${fn}'.",
+			"I want you to only make suggestions to change the 'fn' function."
+			],
+			"violentmonkey": [
+			"I want to run this script as a userscript in Violentmonkey. Please write the comment block I would have to put at the top of the script. Important: Don't write any text before or after the code block. Show me only the comment block, and nothing else.",
+			"Show me how I can execute the 'main' function. Assume all functions are available. Important: "
+			]
+		}
+	}
+}
+

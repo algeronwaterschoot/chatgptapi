@@ -1,0 +1,40 @@
+[
+    {
+        "promptId": "goodbye",
+        "promptString": "Goodbye, {{name}}! Thank you for using our service.",
+        "metadata": {
+            "validators": [
+                "(input) => typeof input === 'string' && input.length <= 20"
+            ]
+        }
+    },
+    {
+        "promptId": "name",
+        "promptString": "Please enter your name.",
+        "metadata": {
+            "validators": [
+                "(input) => typeof input === 'string' && input.length > 0"
+            ],
+            "decorators": [
+                "(output) => output.toLowerCase()"
+            ]
+        }
+    },
+    {
+        "promptId": "email",
+        "promptString": "Please enter your email address.",
+        "metadata": {
+            "validators": [
+                "(input) => /\\S+@\\S+\\.\\S+/.test(input)"
+            ]
+        }
+    },
+    {
+        "promptId": "custom_prompt_1",
+        "promptString": "Welcome, {{name}}!",
+        "metadata": {
+            "validators": [],
+            "decorators": []
+        }
+    }
+]

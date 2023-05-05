@@ -1,30 +1,59 @@
 <!DOCTYPE html>
 <html>
-  <head>
+
+<head>
     <style>
-      body {
-        width: 200px;
-        height: 50px;
-        text-align: center;
-        padding: 10px;
-      }
-      button {
-        cursor: pointer;
-        font-size: 16px;
-      }
+        body {
+            width: 200px;
+            height: 50px;
+            text-align: center;
+            padding: 10px;
+        }
+
+        button {
+            cursor: pointer;
+            font-size: 16px;
+        }
     </style>
-  </head>
-  <body>
-    <script src="src/Prompt.js"></script>
-	<iframe src="sandbox.html" id="sandbox" style="display: none"></iframe>
-    <button id="analyzeBtn">Test ChatGPT API</button>
-    <button id="autoScript">Test AutoScript</button>
-	<button id="callFunction">Call Cloud Function</button>
+</head>
+
+<body>
+    <!--<script src="src/Prompt.js"></script>-->
+    <iframe src="sandbox.html" id="sandbox" style="display: none"></iframe>
+    <!-- <button id="analyzeBtn">Test ChatGPT API</button> -->
+    <button id="autoScript">Run src/main.ts</button>
+    <!-- <button id="callFunction">Call Cloud Function</button> -->
     <pre id="result"></pre>
-    <script src="cocktails.js"></script>
-    <script src="ama.js"></script>
-    <script src="autoscript.js"></script>
+    <!--<script src="cocktails.js"></script>-->
+    <!--<script src="ama.js"></script>-->
+    <!--<script src="autoscript.js"></script>-->
     <script src="popup.js"></script>
-    <script src="mock.js"></script>
-  </body>
+    <!--<script src="node_modules/systemjs/dist/system.js"></script>-->
+    <!--<script src="./dist/bundle.js"></script>-->
+    <!--<script>
+      System.import('lib/flowchat.workspace.js')
+        .then((module) => {
+          // Do something with your module here
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    </script>
+    -->
+    <script type="module" src="pkg/disable_exports.js"></script>
+    <!--<script type="module" src="lib/GPTContext.js"></script>
+    <script type="module" src="lib/GPTSearch.js"></script>
+    <script type="module" src="lib/GPTSandbox.js"></script>
+    <script type="module" src="lib/GPTAPI.js"></script>
+    <script type="module" src="lib/GPTMermaidExperimental.js"></script>-->
+    <script type="module" src="lib/bundle.js"></script>
+    <!--<script type="module" src="lib/flowchat.workspace.js"></script>-->
+    <!--<div id="tsSandbox"></div>
+    <script src="src/sandbox/ts-compiler.js"></script>
+    <script src="src/sandbox/main.js"></script>-->
+    <!--<script src="mock.js"></script>-->
+    <!--<script src="flowchat.plugins.js"></script>-->
+    <!--<script src="flowchat.js"></script>-->
+</body>
+
 </html>

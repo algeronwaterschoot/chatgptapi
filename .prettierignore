@@ -1,0 +1,11 @@
+# Ignore artifacts:
+build
+coverage
+
+#node_modules
+#sample_data
+#lib
+#pkg
+# demo
+test
+#src_old

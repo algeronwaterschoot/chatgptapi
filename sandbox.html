@@ -1,43 +1,6 @@
 <html>
-	<!-- Jasmine dependencies 
-		<script src="lib/jasmine-5.0.0-alpha.1/lib/jasmine-5.0.0-alpha.1/jasmine.js"></script>
-		<script src="lib/jasmine-5.0.0-alpha.1/lib/jasmine-5.0.0-alpha.1/jasmine-html.js"></script>
-		<script src="lib/jasmine-5.0.0-alpha.1/lib/jasmine-5.0.0-alpha.1/boot0.js"></script>
-		<!-- optional: include a file here that configures the Jasmine env -->
-
+	
     <script>
-		// https://apis.google.com/js/api.js
-		const cloudApiKey = '';
-
-		function initGoogleApiClient() {
-		  return new Promise((resolve, reject) => {
-			gapi.load('client', () => {
-			  gapi.client.setApiKey(apiKey);
-			  gapi.client.load('cloudfunctions', 'v1').then(resolve).catch(reject);
-			});
-		  });
-		}
-		// 
-		const projectId = '';
-		const region = '';
-		const functionName = '';
-
-		async function callPrivateCloudFunction() {
-		  try {
-			await initGoogleApiClient();
-
-			const request = {
-			  name: `projects/${projectId}/locations/${region}/functions/${functionName}`,
-			};
-
-			const response = await gapi.client.cloudfunctions.projects.locations.functions.call(request);
-			const result = response.result;
-
-			console.log('Private Cloud Function response:', result);
-		  } catch (error) {
-			console.error('Error calling private Cloud Function:', error);
-		  }
-		}
 
 		function findTestFunctions(jsCode) {
 		  const functionRegex = /function\s+(test_[a-zA-Z0-9_]+)\s*\(/g;
@@ -74,19 +37,21 @@
 					}
 				});
 				*/
-
-				// TRY/CATCH IMPLEMENTATION
-				//var code_details = eval(code);
-
-				// Override console.error()
-				eval(code.function);
-				eval(code.test);
-
+				
+				// eval(code.function);
+				// eval(code.test);
+				console.log('Importing code into sandbox...');
+				eval(code);
+				
+				/*
 				var newTestNames = findTestFunctions(code.test);
 				if (newTestNames.length == 0){
 					throw new Error("No valid tests detected.");
 				}
 				var oldTestNames = findTestFunctions(code.function);
+				*/
+				var testNames = findTestFunctions(code);
+				/*
 				var testNames = [];
 				for (const testName of oldTestNames) {
 					testNames.push(testName);
@@ -94,11 +59,12 @@
 				for (const testName of newTestNames) {
 					testNames.push(testName);
 				}
+				*/
 				for (const testName of testNames){
 					console.log(testName);
 					failedTest = testName;
 					const testFunction = eval(testName);
-					if (code.test.includes(`async function ${testName}`)){
+					if (code.includes(`async function ${testName}`)){
 						await testFunction();
 					}
 					else {
@@ -106,9 +72,6 @@
 					}
 				}
 				event.source.window.postMessage({ id, result: 'success', error: null }, '*');
-
-				//const result = callPrivateCloudFunction();
-				//event.source.window.postMessage({ id, result, error: null }, '*');
 			  } catch (error) {
 				event.source.window.postMessage({ id, result: null, error: failedTest + ": " + error.message }, '*');
 			  }

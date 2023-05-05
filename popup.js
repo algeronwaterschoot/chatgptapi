@@ -37,7 +37,7 @@ async function copyToClipboard(text) {
     .catch(error => console.error('Error copying text:', error));
 }
 
-async function cleanupFunctionFragments(arr) {
+async function extractCodeFromChatReply(arr) {
   //if (!(Array.isArray(arr) && arr)) return '';
   var script = '';
   for (anEl of arr) {
