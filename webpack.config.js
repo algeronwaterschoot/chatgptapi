@@ -5,6 +5,6 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'lib'),
     filename: 'bundle.js'
-  },
-  target: 'node'
+  }
+  // target: 'node'
 };
